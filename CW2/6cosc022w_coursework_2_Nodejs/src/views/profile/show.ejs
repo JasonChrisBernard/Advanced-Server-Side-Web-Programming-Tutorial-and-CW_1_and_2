@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f6f8fb;
+      color: #1f2937;
+      margin: 0;
+      padding: 32px 16px;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #dbe4f0;
+      border-radius: 16px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+      padding: 24px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .hero img {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 18px;
+      border: 1px solid #cbd5e1;
+      background: #eef2ff;
+    }
+
+    .profile-placeholder {
+      width: 180px;
+      height: 180px;
+      border-radius: 18px;
+      border: 1px solid #cbd5e1;
+      background: linear-gradient(135deg, #dbeafe, #e2e8f0);
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-weight: 700;
+      padding: 16px;
+      box-sizing: border-box;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+
+    .mini-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
+      background: #f8fafc;
+    }
+
+    .mini-card h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    .meta {
+      color: #475569;
+      margin: 6px 0;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    a.button {
+      text-decoration: none;
+      background: #2563eb;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    a.secondary {
+      background: #e2e8f0;
+      color: #1f2937;
+    }
+
+    .empty {
+      color: #64748b;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- This top card summarizes the user and the main alumni profile details. -->
+    <section class="card hero">
+      <div>
+        <% if (profile.profile_image_path) { %>
+          <img src="<%= profile.profile_image_path %>" alt="Profile image" />
+        <% } else { %>
+          <div class="profile-placeholder">No Profile Image</div>
+        <% } %>
+      </div>
+
+      <div>
+        <h1><%= user.fullName %></h1>
+        <p class="meta"><strong>Email:</strong> <%= user.email %></p>
+        <p class="meta"><strong>Contact Number:</strong> <%= profile.contact_number || "Not provided" %></p>
+        <p class="meta"><strong>Location:</strong> <%= profile.location || "Not provided" %></p>
+        <p class="meta"><strong>Programme:</strong> <%= profile.programme || "Not provided" %></p>
+        <p class="meta"><strong>Graduation Date:</strong> <%= profile.graduation_date || "Not provided" %></p>
+        <p class="meta"><strong>Industry Sector:</strong> <%= profile.industry_sector || "Not provided" %></p>
+        <p class="meta"><strong>Professional Headline:</strong> <%= profile.professional_headline || "Not provided" %></p>
+        <p class="meta">
+          <strong>LinkedIn:</strong>
+          <% if (profile.linkedin_url) { %>
+            <a href="<%= profile.linkedin_url %>" target="_blank" rel="noreferrer"><%= profile.linkedin_url %></a>
+          <% } else { %>
+            Not provided
+          <% } %>
+        </p>
+        <div class="button-row">
+          <a class="button" href="/alumni-profile/edit">Edit Profile</a>
+          <a class="button secondary" href="/">Back to Home</a>
+          <form method="POST" action="/alumni-profile/delete" onsubmit="return confirm('Delete your alumni profile and all related entries?');">
+            <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+            <button class="button secondary" style="background:#fee2e2;color:#b91c1c;" type="submit">Delete Profile</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Biography lives in its own card so it has more room to breathe. -->
+    <section class="card">
+      <h2>Biography</h2>
+      <p><%= profile.biography || "No biography has been added yet." %></p>
+    </section>
+
+    <!-- This helper prints one mini-card per row in a repeatable profile section. -->
+    <section class="card">
+      <h2>Degrees</h2>
+      <% if (profile.degrees.length) { %>
+        <div class="section-grid">
+          <% profile.degrees.forEach(function(degree) { %>
+            <article class="mini-card">
+              <h3><%= degree.title %></h3>
+              <p class="meta"><strong>Institution:</strong> <%= degree.institution_name || "Not provided" %></p>
+              <p class="meta"><strong>Completion Date:</strong> <%= degree.completion_date || "Not provided" %></p>
+              <p class="meta">
+                <strong>Official Page:</strong>
+                <% if (degree.official_url) { %>
+                  <a href="<%= degree.official_url %>" target="_blank" rel="noreferrer">Open link</a>
+                <% } else { %>
+                  Not provided
+                <% } %>
+              </p>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="empty">No degrees have been added yet.</p>
+      <% } %>
+    </section>
+
+    <section class="card">
+      <h2>Professional Certifications</h2>
+      <% if (profile.certifications.length) { %>
+        <div class="section-grid">
+          <% profile.certifications.forEach(function(certification) { %>
+            <article class="mini-card">
+              <h3><%= certification.title %></h3>
+              <p class="meta"><strong>Provider:</strong> <%= certification.provider_name || "Not provided" %></p>
+              <p class="meta"><strong>Completion Date:</strong> <%= certification.completion_date || "Not provided" %></p>
+              <p class="meta">
+                <strong>Course Page:</strong>
+                <% if (certification.official_url) { %>
+                  <a href="<%= certification.official_url %>" target="_blank" rel="noreferrer">Open link</a>
+                <% } else { %>
+                  Not provided
+                <% } %>
+              </p>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="empty">No certifications have been added yet.</p>
+      <% } %>
+    </section>
+
+    <section class="card">
+      <h2>Professional Licences</h2>
+      <% if (profile.licenses.length) { %>
+        <div class="section-grid">
+          <% profile.licenses.forEach(function(license) { %>
+            <article class="mini-card">
+              <h3><%= license.title %></h3>
+              <p class="meta"><strong>Awarding Body:</strong> <%= license.awarding_body || "Not provided" %></p>
+              <p class="meta"><strong>Completion Date:</strong> <%= license.completion_date || "Not provided" %></p>
+              <p class="meta">
+                <strong>Official Link:</strong>
+                <% if (license.official_url) { %>
+                  <a href="<%= license.official_url %>" target="_blank" rel="noreferrer">Open link</a>
+                <% } else { %>
+                  Not provided
+                <% } %>
+              </p>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="empty">No professional licences have been added yet.</p>
+      <% } %>
+    </section>
+
+    <section class="card">
+      <h2>Short Professional Courses</h2>
+      <% if (profile.courses.length) { %>
+        <div class="section-grid">
+          <% profile.courses.forEach(function(course) { %>
+            <article class="mini-card">
+              <h3><%= course.title %></h3>
+              <p class="meta"><strong>Provider:</strong> <%= course.provider_name || "Not provided" %></p>
+              <p class="meta"><strong>Completion Date:</strong> <%= course.completion_date || "Not provided" %></p>
+              <p class="meta">
+                <strong>Course Page:</strong>
+                <% if (course.official_url) { %>
+                  <a href="<%= course.official_url %>" target="_blank" rel="noreferrer">Open link</a>
+                <% } else { %>
+                  Not provided
+                <% } %>
+              </p>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="empty">No short professional courses have been added yet.</p>
+      <% } %>
+    </section>
+
+    <section class="card">
+      <h2>Employment History</h2>
+      <% if (profile.employmentHistory.length) { %>
+        <div class="section-grid">
+          <% profile.employmentHistory.forEach(function(job) { %>
+            <article class="mini-card">
+              <h3><%= job.job_title || "Role not provided" %></h3>
+              <p class="meta"><strong>Employer:</strong> <%= job.employer_name %></p>
+              <p class="meta"><strong>Start Date:</strong> <%= job.start_date || "Not provided" %></p>
+              <p class="meta"><strong>End Date:</strong> <%= job.end_date || "Present / not provided" %></p>
+            </article>
+          <% }) %>
+        </div>
+      <% } else { %>
+        <p class="empty">No employment history has been added yet.</p>
+      <% } %>
+    </section>
+  </div>
+</body>
+</html>

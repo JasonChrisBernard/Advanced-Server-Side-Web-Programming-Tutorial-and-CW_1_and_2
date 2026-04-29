@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+      color: #1f2937;
+      padding: 28px 16px 40px;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #dbe5f0;
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+
+    .stat {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 8px 0 4px;
+    }
+
+    .message-error {
+      color: #b00020;
+      font-weight: 600;
+    }
+
+    .message-success {
+      color: #0f8c35;
+      font-weight: 600;
+    }
+
+    .token-box {
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: 14px;
+      padding: 16px;
+      overflow-wrap: anywhere;
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    .token-copy-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .token-copy-input {
+      flex: 1 1 420px;
+      background: #0f172a;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    .token-copy-button {
+      width: auto;
+      white-space: nowrap;
+      background: #0f8c35;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .mini-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    button {
+      background: #2563eb;
+      color: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th,
+    td {
+      border: 1px solid #dbe5f0;
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .pill-revoked {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .pill-expired {
+      background: #ffedd5;
+      color: #c2410c;
+    }
+
+    a {
+      color: #1d4ed8;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <%# This opening card explains how bearer-token clients access the API and previews today's public data. %>
+    <section class="card hero">
+      <div>
+        <h1><%= title %></h1>
+        <p>Use this portal to issue bearer tokens for external clients, review usage statistics, and revoke tokens when access should stop.</p>
+        <p><a href="/">Back to home</a> | <a href="<%= docsUrl %>">Open developer docs</a> | <a href="/api-docs">Open interactive Swagger UI</a> | <a href="<%= swaggerJsonUrl %>">Open Swagger JSON</a></p>
+
+        <% if (error) { %>
+          <p class="message-error"><%= error %></p>
+        <% } %>
+
+        <% if (success) { %>
+          <p class="message-success"><%= success %></p>
+        <% } %>
+
+        <% if (generatedToken) { %>
+          <%# Show the raw bearer token only once right after creation so the user can copy it safely. %>
+          <h2>New Bearer Token</h2>
+          <p>Copy this token now. The raw token is not stored in plain text and will not be shown again.</p>
+          <p><strong>Expires at:</strong> <%= generatedTokenExpiresAt ? new Date(generatedTokenExpiresAt).toLocaleString() : `In ${apiTokenTtlDays} days` %></p>
+          <div class="token-box"><%= generatedToken %></div>
+          <div class="token-copy-row">
+            <input
+              id="generatedTokenValue"
+              class="token-copy-input"
+              type="text"
+              value="<%= generatedToken %>"
+              readonly
+            />
+            <button
+              id="copyGeneratedTokenButton"
+              class="token-copy-button"
+              type="button"
+            >
+              Copy token
+            </button>
+          </div>
+          <p><strong>Important:</strong> the token list below only shows a short prefix such as <code>alumni_live_xxxxxx</code>. That prefix is not enough to call the API.</p>
+        <% } %>
+      </div>
+
+      <div class="mini-card">
+        <h2>Today's API Output Preview</h2>
+        <% if (todayFeatured) { %>
+          <p><strong>Feature date:</strong> <%= todayFeatured.featuredDate %></p>
+          <p><strong>Feature month:</strong> <%= todayFeatured.featureMonthLabel %></p>
+          <p><strong>Name:</strong> <%= todayFeatured.alumni.fullName %></p>
+          <p><strong>Email:</strong> <%= todayFeatured.alumni.email || "Not provided" %></p>
+          <p><strong>Contact number:</strong> <%= todayFeatured.alumni.contactNumber || "Not provided" %></p>
+          <p><strong>Programme:</strong> <%= todayFeatured.alumni.programme || "Not provided" %></p>
+          <p><strong>Graduation date:</strong> <%= todayFeatured.alumni.graduationDate || "Not provided" %></p>
+          <p><strong>Industry sector:</strong> <%= todayFeatured.alumni.industrySector || "Not provided" %></p>
+          <p><strong>Headline:</strong> <%= todayFeatured.alumni.professionalHeadline || "Not provided" %></p>
+          <p><strong>Location:</strong> <%= todayFeatured.alumni.location || "Not provided" %></p>
+          <p><strong>LinkedIn:</strong>
+            <% if (todayFeatured.alumni.linkedinUrl) { %>
+              <a href="<%= todayFeatured.alumni.linkedinUrl %>" target="_blank" rel="noreferrer">View profile</a>
+            <% } else { %>
+              Not provided
+            <% } %>
+          </p>
+          <p><strong>Biography:</strong> <%= todayFeatured.alumni.biography || "Not provided" %></p>
+          <p><strong>Selected at:</strong> <%= todayFeatured.alumni.selectedAt ? new Date(todayFeatured.alumni.selectedAt).toLocaleString() : "Not available" %></p>
+        <% } else { %>
+          <p>No featured alumnus is available yet because today's featured day has not been resolved.</p>
+        <% } %>
+        <p><strong>Endpoint:</strong> <code><%= featuredEndpointUrl %></code></p>
+        <hr style="border: 0; border-top: 1px solid #dbe5f0; margin: 18px 0;" />
+        <h3>Tomorrow's Live Leading Profile</h3>
+        <p>Refresh after changing bids in different accounts to see which profile is currently ahead for tomorrow's slot.</p>
+        <% if (tomorrowLeadingFeatured) { %>
+          <p><strong>Feature date:</strong> <%= tomorrowLeadingFeatured.featuredDate %></p>
+          <p><strong>Status:</strong> <%= tomorrowLeadingFeatured.previewStatus %></p>
+          <p><strong>Name:</strong> <%= tomorrowLeadingFeatured.alumni.fullName %></p>
+          <p><strong>Email:</strong> <%= tomorrowLeadingFeatured.alumni.email || "Not provided" %></p>
+          <p><strong>Contact number:</strong> <%= tomorrowLeadingFeatured.alumni.contactNumber || "Not provided" %></p>
+          <p><strong>Programme:</strong> <%= tomorrowLeadingFeatured.alumni.programme || "Not provided" %></p>
+          <p><strong>Graduation date:</strong> <%= tomorrowLeadingFeatured.alumni.graduationDate || "Not provided" %></p>
+          <p><strong>Industry sector:</strong> <%= tomorrowLeadingFeatured.alumni.industrySector || "Not provided" %></p>
+          <p><strong>Headline:</strong> <%= tomorrowLeadingFeatured.alumni.professionalHeadline || "Not provided" %></p>
+          <p><strong>Location:</strong> <%= tomorrowLeadingFeatured.alumni.location || "Not provided" %></p>
+          <p><strong>LinkedIn:</strong>
+            <% if (tomorrowLeadingFeatured.alumni.linkedinUrl) { %>
+              <a href="<%= tomorrowLeadingFeatured.alumni.linkedinUrl %>" target="_blank" rel="noreferrer">View profile</a>
+            <% } else { %>
+              Not provided
+            <% } %>
+          </p>
+          <p><strong>Biography:</strong> <%= tomorrowLeadingFeatured.alumni.biography || "Not provided" %></p>
+        <% } else { %>
+          <p>No eligible leading bid exists yet for tomorrow's slot.</p>
+        <% } %>
+      </div>
+    </section>
+
+    <%# These cards summarize how many tokens exist and how often they were used. %>
+    <section class="grid">
+      <article class="stat">
+        <div>Active Tokens</div>
+        <div class="stat-number"><%= usageSummary.activeTokens %></div>
+        <div>Currently able to authenticate API requests.</div>
+      </article>
+      <article class="stat">
+        <div>Revoked Tokens</div>
+        <div class="stat-number"><%= usageSummary.revokedTokens %></div>
+        <div>Tokens disabled from further access.</div>
+      </article>
+      <article class="stat">
+        <div>Expired Tokens</div>
+        <div class="stat-number"><%= usageSummary.expiredTokens %></div>
+        <div>Tokens that passed their configured lifetime.</div>
+      </article>
+      <article class="stat">
+        <div>Successful API Calls</div>
+        <div class="stat-number"><%= usageSummary.successfulRequests %></div>
+        <div>Bearer-authenticated requests logged for your clients.</div>
+      </article>
+      <article class="stat">
+        <div>Total Logged Requests</div>
+        <div class="stat-number"><%= usageSummary.totalRequests %></div>
+        <div>Includes successful calls and tracked management events.</div>
+      </article>
+    </section>
+
+    <%# This section records the access decisions for different client types and lets the user issue a token. %>
+    <section class="card">
+      <h2>Client Access Strategy</h2>
+      <div class="info-grid">
+        <% clientTypeOptions.forEach(function(option) { %>
+          <article class="mini-card">
+            <h3><%= option.label %></h3>
+            <p><strong>Access method:</strong> Bearer token in the <code>Authorization</code> header.</p>
+            <p><strong>Recommended usage:</strong> <%= option.accessPattern %></p>
+            <p><strong>Allowed scopes:</strong> <code><%= option.scopeList.join(", ") %></code></p>
+            <p><strong>Cannot access:</strong> <%= option.cannotAccess %></p>
+          </article>
+        <% }) %>
+      </div>
+
+      <h3>Scope Reference</h3>
+      <div class="info-grid">
+        <% apiScopeDescriptions.forEach(function(scopeInfo) { %>
+          <article class="mini-card">
+            <p><strong><code><%= scopeInfo.scope %></code></strong></p>
+            <p><%= scopeInfo.description %></p>
+          </article>
+        <% }) %>
+      </div>
+
+      <h2>Create External Client</h2>
+      <form method="POST" action="/developer-portal/clients">
+        <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+        <div class="info-grid">
+          <div>
+            <label for="clientName">Client name</label>
+            <input id="clientName" name="clientName" type="text" placeholder="Campus Website Widget" required />
+          </div>
+
+          <div>
+            <label for="clientType">Client type</label>
+            <select id="clientType" name="clientType" required>
+              <option value="">Select a client type</option>
+              <% clientTypeOptions.forEach(function(option) { %>
+                <option value="<%= option.value %>"><%= option.label %></option>
+              <% }) %>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top: 12px;">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" placeholder="Explain what this client will do with the featured alumnus API."></textarea>
+        </div>
+
+        <p>The selected client type decides the scope list. Analytics dashboard tokens receive <code>read:alumni</code> and <code>read:analytics</code>; Mobile AR App tokens receive <code>read:alumni_of_day</code>.</p>
+        <button type="submit">Create client and issue token</button>
+      </form>
+    </section>
+
+    <%# This table lists all issued clients and lets the user revoke tokens directly from the page. %>
+    <section class="card">
+      <h2>Issued Clients And Tokens</h2>
+      <p>The <strong>Token Prefix</strong> column is only a short identifier for your records. You must use the full raw token that was shown once when the token was created.</p>
+      <p>New bearer tokens expire automatically after <strong><%= apiTokenTtlDays %> days</strong> unless you revoke them sooner.</p>
+
+      <% if (clients.length) { %>
+        <table>
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Type</th>
+              <th>Token Prefix</th>
+              <th>Scopes</th>
+              <th>Status</th>
+              <th>Expires</th>
+              <th>Usage Count</th>
+              <th>Last Used</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% clients.forEach(function(client) { %>
+              <tr>
+                <td>
+                  <strong><%= client.client_name %></strong><br />
+                  <span><%= client.description || "No description provided" %></span>
+                </td>
+                <td><%= client.client_type %></td>
+                <td><code><%= client.token_prefix %></code></td>
+                <td><code><%= client.scope_list %></code></td>
+                <td>
+                  <span class="pill <%= client.status === 'REVOKED' ? 'pill-revoked' : client.status === 'EXPIRED' ? 'pill-expired' : '' %>"><%= client.status %></span>
+                </td>
+                <td><%= client.expires_at ? new Date(client.expires_at).toLocaleString() : "Not set" %></td>
+                <td><%= client.usage_count || 0 %></td>
+                <td><%= client.latest_request_at ? new Date(client.latest_request_at).toLocaleString() : "Never used" %></td>
+                <td>
+                  <% if (client.status === 'ACTIVE') { %>
+                    <form method="POST" action="/developer-portal/tokens/<%= client.token_id %>/revoke">
+                      <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+                      <button type="submit">Revoke token</button>
+                    </form>
+                  <% } else { %>
+                    Revoked
+                  <% } %>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p>No external clients have been created yet.</p>
+      <% } %>
+    </section>
+
+    <%# This table shows timestamps, tokens, and endpoints accessed for study and audit purposes. %>
+    <section class="card">
+      <h2>Recent Usage Statistics</h2>
+      <p><strong>Last activity:</strong> <%= usageSummary.lastActivityAt ? new Date(usageSummary.lastActivityAt).toLocaleString() : "No API activity yet" %></p>
+
+      <% if (recentUsageLogs.length) { %>
+        <table>
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Client</th>
+              <th>Token</th>
+              <th>Endpoint</th>
+              <th>Method</th>
+              <th>Outcome</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% recentUsageLogs.forEach(function(log) { %>
+              <tr>
+                <td><%= new Date(log.used_at).toLocaleString() %></td>
+                <td><%= log.client_name %><br /><small><%= log.client_type %></small></td>
+                <td><code><%= log.token_prefix || "N/A" %></code></td>
+                <td><code><%= log.endpoint_path %></code></td>
+                <td><%= log.request_method %></td>
+                <td><%= log.outcome %></td>
+                <td><%= log.http_status || "N/A" %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p>No API usage has been logged for your clients yet.</p>
+      <% } %>
+    </section>
+  </div>
+
+  <script>
+    const copyTokenButton = document.getElementById("copyGeneratedTokenButton");
+    const tokenInput = document.getElementById("generatedTokenValue");
+
+    if (copyTokenButton && tokenInput) {
+      copyTokenButton.addEventListener("click", async () => {
+        tokenInput.focus();
+        tokenInput.select();
+
+        try {
+          await navigator.clipboard.writeText(tokenInput.value);
+          copyTokenButton.textContent = "Copied";
+          setTimeout(() => {
+            copyTokenButton.textContent = "Copy token";
+          }, 1500);
+        } catch (error) {
+          document.execCommand("copy");
+          copyTokenButton.textContent = "Copied";
+          setTimeout(() => {
+            copyTokenButton.textContent = "Copy token";
+          }, 1500);
+        }
+      });
+    }
+  </script>
+</body>
+</html>

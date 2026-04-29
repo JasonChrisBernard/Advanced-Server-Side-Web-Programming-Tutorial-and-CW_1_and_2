@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f8ff;
+      color: #172033;
+      padding: 28px 16px 42px;
+    }
+
+    .page {
+      max-width: 1240px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #d8e4f3;
+      border-radius: 20px;
+      box-shadow: 0 16px 40px rgba(22, 34, 51, 0.08);
+      padding: 22px;
+    }
+
+    .hero,
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      align-items: end;
+    }
+
+    .nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    .nav a,
+    button {
+      background: #174ea6;
+      color: #ffffff;
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      text-decoration: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .logout button {
+      background: #dbeafe;
+      color: #174ea6;
+    }
+
+    .clear {
+      background: #e2e8f0;
+      color: #172033;
+      display: inline-block;
+      border-radius: 999px;
+      padding: 10px 14px;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    input,
+    select {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 11px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .muted {
+      color: #64748b;
+    }
+
+    .pill {
+      display: inline-block;
+      background: #dbeafe;
+      color: #174ea6;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-weight: 700;
+      font-size: 0.86rem;
+    }
+
+    @media (max-width: 760px) {
+      table,
+      thead,
+      tbody,
+      th,
+      td,
+      tr {
+        display: block;
+      }
+
+      thead {
+        display: none;
+      }
+
+      td {
+        border-bottom: 0;
+        padding: 6px 0;
+      }
+
+      tr {
+        border-bottom: 1px solid #e2e8f0;
+        padding: 12px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="card">
+      <div class="hero">
+        <div>
+          <p class="muted">CW2 staff directory</p>
+          <h1><%= title %></h1>
+          <p>View records by programme, graduation date/year, and industry sector.</p>
+          <nav class="nav">
+            <a href="/staff/dashboard">Dashboard</a>
+            <a href="/staff/graphs">Graphs Pages</a>
+            <a href="/developer-portal">API Keys</a>
+          </nav>
+        </div>
+        <div>
+          <strong><%= totalMatches %></strong>
+          <p class="muted">matching records</p>
+          <form class="logout" method="POST" action="/logout">
+            <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+            <button type="submit">Logout</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Filter Records</h2>
+      <form method="GET" action="/staff/records">
+        <div class="filter-grid">
+          <div>
+            <label for="programme">Programme</label>
+            <select id="programme" name="programme">
+              <option value="">All programmes</option>
+              <% filterOptions.programmes.forEach(function(programme) { %>
+                <option value="<%= programme %>" <%= filters.programme === programme ? "selected" : "" %>><%= programme %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div>
+            <label for="graduationYear">Graduation Year</label>
+            <select id="graduationYear" name="graduationYear">
+              <option value="">All years</option>
+              <% filterOptions.graduationYears.forEach(function(year) { %>
+                <option value="<%= year %>" <%= filters.graduationYear === year ? "selected" : "" %>><%= year %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div>
+            <label for="graduationDate">Exact Graduation Date</label>
+            <input id="graduationDate" name="graduationDate" type="date" value="<%= filters.graduationDate %>" />
+          </div>
+
+          <div>
+            <label for="industrySector">Industry Sector</label>
+            <select id="industrySector" name="industrySector">
+              <option value="">All industries</option>
+              <% filterOptions.industrySectors.forEach(function(industrySector) { %>
+                <option value="<%= industrySector %>" <%= filters.industrySector === industrySector ? "selected" : "" %>><%= industrySector %></option>
+              <% }) %>
+            </select>
+          </div>
+
+          <div>
+            <button type="submit">Apply filters</button>
+            <a class="clear" href="/staff/records">Clear</a>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Results</h2>
+      <% if (alumni.length) { %>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Programme</th>
+              <th>Graduation Date</th>
+              <th>Industry</th>
+              <th>Contact</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% alumni.forEach(function(profile) { %>
+              <tr>
+                <td>
+                  <strong><%= profile.full_name %></strong><br />
+                  <span class="muted"><%= profile.professional_headline || "No headline" %></span>
+                </td>
+                <td><%= profile.programme || "Not specified" %></td>
+                <td><%= profile.graduation_date || "Not specified" %></td>
+                <td><%= profile.industry_sector || "Not specified" %></td>
+                <td>
+                  <%= profile.email %><br />
+                  <span class="muted"><%= profile.contact_number || "No phone" %> · <%= profile.location || "No location" %></span>
+                  <% if (profile.linkedin_url) { %>
+                    <br /><a href="<%= profile.linkedin_url %>" target="_blank" rel="noreferrer">LinkedIn</a>
+                  <% } %>
+                </td>
+                <td>
+                  <span class="pill"><%= profile.is_verified ? "Verified" : "Unverified" %></span><br />
+                  <span class="muted">Updated <%= profile.updated_at ? new Date(profile.updated_at).toLocaleString() : "N/A" %></span>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p class="muted">No records match the selected filters yet.</p>
+      <% } %>
+    </section>
+  </div>
+</body>
+</html>

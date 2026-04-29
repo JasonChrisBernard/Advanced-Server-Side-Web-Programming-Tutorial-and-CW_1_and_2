@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 32px;
+      line-height: 1.5;
+    }
+
+    .message-error {
+      color: #b00020;
+    }
+
+    .message-success {
+      color: #0a7a25;
+    }
+
+    .panel {
+      border: 1px solid #cccccc;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .winner-card {
+      border: 1px solid #dddddd;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .profile-image {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .profile-image-placeholder {
+      width: 120px;
+      height: 120px;
+      border-radius: 8px;
+      background: #efefef;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      color: #555555;
+      font-size: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th,
+    td {
+      border: 1px solid #cccccc;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    input[type="number"] {
+      padding: 8px;
+      width: 220px;
+    }
+
+    button {
+      padding: 8px 14px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <%# This page explains the daily blind bidding rules and lets the user bid for tomorrow's slot. %>
+  <h1><%= title %></h1>
+
+  <p><a href="/">Back to home</a></p>
+
+  <% if (error) { %>
+    <p class="message-error"><%= error %></p>
+  <% } %>
+
+  <% if (success) { %>
+    <p class="message-success"><%= success %></p>
+  <% } %>
+
+  <div class="panel">
+    <h2>How Blind Bidding Works</h2>
+    <ul>
+      <li>You bid for one featured alumni slot at a time.</li>
+      <li>The slot on this page is for <strong><%= tomorrowFeatureDateLabel %></strong>.</li>
+      <li>The highest bid amount stays hidden from all bidders.</li>
+      <li>You can increase your bid, but never lower it.</li>
+      <li>You can be featured at most <%= maxFeaturedAppearancesPerMonth %> times in <%= targetMonthLabel %>, unless one alumni event unlocks an extra appearance.</li>
+      <li>Winner selection runs automatically at local midnight, with a recovery poll that catches up missed resolutions after restarts or downtime.</li>
+      <li>Resolved results trigger email notifications when mail is configured.</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <h2>Profile Linked To This Bid</h2>
+
+    <% if (hasProfile && profile) { %>
+      <p><strong>Profile owner:</strong> <%= user.fullName %></p>
+      <p><strong>Headline:</strong> <%= profile.professional_headline || "No headline added yet" %></p>
+      <p><strong>Location:</strong> <%= profile.location || "No location added yet" %></p>
+      <p><strong>LinkedIn:</strong>
+        <% if (profile.linkedin_url) { %>
+          <a href="<%= profile.linkedin_url %>" target="_blank" rel="noreferrer">Open LinkedIn profile</a>
+        <% } else { %>
+          Not added yet
+        <% } %>
+      </p>
+      <p>If your bid wins, this saved alumni profile is the one that will be displayed to API clients and students for that featured day.</p>
+    <% } else { %>
+      <p>You need to create your alumni profile before you can bid for a featured slot.</p>
+      <p><a href="/alumni-profile/edit">Create alumni profile</a></p>
+    <% } %>
+  </div>
+
+  <div class="panel">
+    <h2>Tomorrow's Featured Slot</h2>
+    <p><strong>Feature date:</strong> <%= tomorrowFeatureDateLabel %></p>
+    <p><strong>Current bids for this slot:</strong> <%= tomorrowBidCount %></p>
+    <p><strong><%= targetMonthLabel %> appearances used:</strong> <%= monthlyWinsUsed %> of <%= monthlyAppearanceAllowance %></p>
+    <p><strong>Remaining appearances this month:</strong> <%= remainingMonthlyWins %></p>
+    <% if (hasEventCredit && eventCredit) { %>
+      <p><strong>Alumni event credit:</strong> Recorded for <%= eventCredit.event_name %> on <%= eventCredit.event_date %>. Your allowance includes <%= eventBonusFeaturedAppearances %> extra appearance.</p>
+    <% } else { %>
+      <p><strong>Alumni event credit:</strong> Not recorded yet. Verify attendance for one approved university alumni event below to unlock a 4th appearance in <%= targetMonthLabel %>.</p>
+    <% } %>
+
+    <% if (currentBid) { %>
+      <p><strong>Your current bid:</strong> <%= Number(currentBid.amount).toFixed(2) %></p>
+      <p><strong>Bid lifecycle status:</strong>
+        <%= currentBid.status === "PENDING"
+          ? "PENDING (awaiting midnight winner selection)"
+          : currentBid.status %>
+      </p>
+      <% if (currentStanding.label) { %>
+        <p><strong>Current competitive standing:</strong> <%= currentStanding.label %></p>
+        <p><%= currentStanding.detail %></p>
+      <% } %>
+      <p>To update this bid, enter an amount greater than <%= Number(currentBid.amount).toFixed(2) %>.</p>
+    <% } else { %>
+      <p>You have not placed a bid for <%= tomorrowFeatureDateLabel %> yet.</p>
+    <% } %>
+
+    <% if (hasProfile && !hasReachedMonthlyLimit) { %>
+      <form method="POST" action="/blind-bidding">
+        <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+        <div>
+          <label for="amount">Bid amount</label>
+        </div>
+        <div>
+          <input
+            id="amount"
+            type="number"
+            name="amount"
+            min="<%= minimumNextBid %>"
+            step="0.01"
+            placeholder="<%= minimumNextBid %>"
+            required
+          />
+        </div>
+        <button type="submit"><%= currentBid ? "Increase bid" : "Place blind bid" %></button>
+      </form>
+    <% } else if (hasProfile) { %>
+      <p>
+        You have already reached the monthly featured appearance limit for <%= targetMonthLabel %>.
+        <% if (!hasEventCredit) { %>
+          Record an alumni event below to unlock one extra appearance.
+        <% } %>
+      </p>
+    <% } %>
+    <% if (hasProfile && canCancelBid) { %>
+      <form method="POST" action="/blind-bidding/cancel" onsubmit="return confirm('Cancel your current blind bid for tomorrow\\'s slot?');">
+        <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+        <button type="submit">Cancel bid</button>
+      </form>
+    <% } %>
+  </div>
+
+  <div class="panel">
+    <h2>Monthly Alumni Event Credit</h2>
+
+    <% if (hasEventCredit && eventCredit) { %>
+      <p><strong>Unlocked month:</strong> <%= targetMonthLabel %></p>
+      <p><strong>Event name:</strong> <%= eventCredit.event_name %></p>
+      <p><strong>Event date:</strong> <%= eventCredit.event_date %></p>
+      <p>Your bidding allowance for <%= targetMonthLabel %> is now <strong><%= monthlyAppearanceAllowance %></strong> appearances instead of <%= maxFeaturedAppearancesPerMonth %>.</p>
+    <% } else { %>
+      <p>Verify attendance for one approved university alumni event to unlock <strong><%= eventBonusFeaturedAppearances %></strong> extra featured appearance in <%= targetMonthLabel %>.</p>
+      <% if (verifiedEventsForMonth.length) { %>
+        <p><strong>Verified events available this month:</strong></p>
+        <ul>
+          <% verifiedEventsForMonth.forEach((event) => { %>
+            <li><%= event.event_name %> on <%= event.event_date %></li>
+          <% }) %>
+        </ul>
+        <form method="POST" action="/blind-bidding/event-credit">
+          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+          <div>
+            <label for="eventName">Event name</label>
+          </div>
+          <div>
+            <input id="eventName" type="text" name="eventName" maxlength="120" placeholder="University Alumni Networking Evening" required />
+          </div>
+          <div style="margin-top: 10px;">
+            <label for="eventDate">Event date</label>
+          </div>
+          <div>
+            <input id="eventDate" type="date" name="eventDate" required />
+          </div>
+          <div style="margin-top: 10px;">
+            <label for="attendanceCode">Attendance code</label>
+          </div>
+          <div>
+            <input id="attendanceCode" type="text" name="attendanceCode" maxlength="120" placeholder="Enter the code shared at the event" required />
+          </div>
+          <button type="submit">Verify alumni event credit</button>
+        </form>
+      <% } else { %>
+        <p>No verified university alumni events have been configured for <%= targetMonthLabel %> yet.</p>
+      <% } %>
+    <% } %>
+  </div>
+
+  <div class="panel">
+    <h2>My Bid History</h2>
+
+    <% if (bidHistory.length) { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Feature Date</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Updated</th>
+            <th>Resolved</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% bidHistory.forEach((bid) => { %>
+            <tr>
+              <td><%= bid.feature_date %></td>
+              <td><%= Number(bid.amount).toFixed(2) %></td>
+              <td><%= bid.statusDisplay %></td>
+              <td><%= bid.updated_at ? new Date(bid.updated_at).toLocaleString() : "N/A" %></td>
+              <td>
+                <%= bid.status === "CANCELLED"
+                  ? (bid.resolved_at ? `Cancelled on ${new Date(bid.resolved_at).toLocaleString()}` : "Cancelled")
+                  : bid.resolved_at
+                    ? new Date(bid.resolved_at).toLocaleString()
+                    : "Pending midnight selection" %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>You have not placed any bids yet.</p>
+    <% } %>
+  </div>
+
+  <div class="panel">
+    <h2>Today's Featured Alumnus</h2>
+
+    <% if (todayFeatured) { %>
+      <% if (todayFeatured.alumni.profileImageUrl) { %>
+        <img
+          class="profile-image"
+          src="<%= todayFeatured.alumni.profileImageUrl %>"
+          alt="Profile image for <%= todayFeatured.alumni.fullName %>"
+        />
+      <% } else { %>
+        <div class="profile-image-placeholder">No image</div>
+      <% } %>
+
+      <p><strong>Feature date:</strong> <%= todayFeatured.featuredDate %></p>
+      <p><strong>Name:</strong> <%= todayFeatured.alumni.fullName %></p>
+      <p><strong>Email:</strong> <%= todayFeatured.alumni.email || "No email added" %></p>
+      <p><strong>Contact number:</strong> <%= todayFeatured.alumni.contactNumber || "No contact number added" %></p>
+      <p><strong>Headline:</strong> <%= todayFeatured.alumni.professionalHeadline || "No headline added" %></p>
+      <p><strong>Location:</strong> <%= todayFeatured.alumni.location || "No location added" %></p>
+      <p><strong>Biography:</strong> <%= todayFeatured.alumni.biography || "No biography added" %></p>
+      <p><strong>LinkedIn:</strong>
+        <% if (todayFeatured.alumni.linkedinUrl) { %>
+          <a href="<%= todayFeatured.alumni.linkedinUrl %>" target="_blank" rel="noreferrer">View profile</a>
+        <% } else { %>
+          Not added
+        <% } %>
+      </p>
+      <p><strong>Selected at:</strong> <%= todayFeatured.alumni.selectedAt ? new Date(todayFeatured.alumni.selectedAt).toLocaleString() : "N/A" %></p>
+    <% } else { %>
+      <p>No featured alumnus is active yet for today.</p>
+    <% } %>
+  </div>
+
+  <div class="panel">
+    <h2>Recent Featured Days</h2>
+
+    <% if (recentResolvedWinners.length) { %>
+      <% recentResolvedWinners.forEach((winner) => { %>
+        <div class="winner-card">
+          <p><strong>Feature date:</strong> <%= winner.feature_date %></p>
+
+          <% if (winner.profile_image_path) { %>
+            <img
+              class="profile-image"
+              src="<%= winner.profile_image_path %>"
+              alt="Profile image for <%= winner.full_name %>"
+            />
+          <% } else { %>
+            <div class="profile-image-placeholder">No image</div>
+          <% } %>
+
+          <p><strong>Name:</strong> <%= winner.full_name %></p>
+          <p><strong>Email:</strong> <%= winner.email %></p>
+          <p><strong>Contact number:</strong> <%= winner.contact_number || "No contact number added" %></p>
+          <p><strong>Location:</strong> <%= winner.location || "No location added" %></p>
+          <p><strong>Headline:</strong> <%= winner.professional_headline || "No headline added" %></p>
+          <p><strong>Biography:</strong> <%= winner.biography || "No biography added" %></p>
+          <p><strong>LinkedIn:</strong>
+            <% if (winner.linkedin_url) { %>
+              <a href="<%= winner.linkedin_url %>" target="_blank" rel="noreferrer">View profile</a>
+            <% } else { %>
+              Not added
+            <% } %>
+          </p>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <p>No featured days have been resolved yet.</p>
+    <% } %>
+  </div>
+</body>
+</html>

@@ -1,0 +1,59 @@
+{
+  "name": "6cosc022w_coursework_1_2_nodejs",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^13.5.0",
+    "bcrypt": "^6.0.0",
+    "better-sqlite3": "^12.6.2",
+    "chart.js": "^4.4.7",
+    "dotenv": "^17.3.1",
+    "ejs": "^5.0.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "multer": "^2.1.1",
+    "nodemailer": "^8.0.2",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-router-dom": "^7.13.1",
+    "react-scripts": "5.0.1",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "start:cw1": "set PORT=3000&&set APP_MODE=cw1_alumni&&node server.js",
+    "start:cw2": "set PORT=3001&&set APP_MODE=cw2_staff&&set APP_BASE_URL=http://localhost:3001&&set CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001&&node server.js",
+    "dev": "nodemon server.js",
+    "dev:cw1": "set PORT=3000&&set APP_MODE=cw1_alumni&&nodemon server.js",
+    "dev:cw2": "set PORT=3001&&set APP_MODE=cw2_staff&&set APP_BASE_URL=http://localhost:3001&&set CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:3001&&nodemon server.js"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "description": "CW1 alumni portal and CW2 staff analytics dashboard using Express, EJS, bcrypt, and SQLite.",
+  "main": "server.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

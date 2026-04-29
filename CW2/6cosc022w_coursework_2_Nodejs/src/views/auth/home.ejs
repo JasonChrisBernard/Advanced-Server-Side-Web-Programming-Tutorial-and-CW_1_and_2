@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+</head>
+<body>
+  <h1><%= title %></h1>
+
+  <% if (isLoggedIn && user) { %>
+    <p>Session detected a logged-in user.</p>
+    <p>Welcome, <strong><%= user.fullName %></strong>.</p>
+    <p>Email: <%= user.email %></p>
+    <p>Role: <%= user.role || "alumnus" %></p>
+
+    <% if ((user.role || "alumnus") === "alumnus") { %>
+      <p><a href="/alumni-profile">View alumni profile</a></p>
+      <p><a href="/alumni-profile/edit">Create or edit alumni profile</a></p>
+      <p><a href="/blind-bidding">Open blind bidding dashboard</a></p>
+    <% } %>
+
+    <% if (user.role === "developer" || user.role === "staff") { %>
+      <p><a href="/staff/dashboard">Open CW2 staff analytics dashboard</a></p>
+      <p><a href="/staff/graphs">Open CW2 graphs pages</a></p>
+      <p><a href="/staff/records">View records by programme, graduation date, and industry</a></p>
+      <p><a href="/developer-portal">Open developer portal</a></p>
+      <p><a href="/developer-api/docs">View public developer API docs</a></p>
+      <p><a href="/api-docs">Open interactive Swagger UI</a></p>
+    <% } %>
+    <form method="POST" action="/logout">
+      <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+      <button type="submit">Logout</button>
+    </form>
+  <% } else { %>
+    <p>No active session found.</p>
+    <p>Please log in or create an account.</p>
+    <p><a href="/login">Go to login</a></p>
+    <p><a href="/register">Create account</a></p>
+  <% } %>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #eef4ff;
+      color: #172033;
+      padding: 28px 16px 42px;
+    }
+
+    .page {
+      max-width: 1220px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .hero,
+    .card,
+    .metric {
+      background: #ffffff;
+      border: 1px solid #d7e3f3;
+      border-radius: 20px;
+      box-shadow: 0 18px 45px rgba(22, 34, 51, 0.08);
+    }
+
+    .hero {
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 1.4fr 0.8fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .card {
+      padding: 22px;
+    }
+
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .nav a,
+    .logout button {
+      background: #174ea6;
+      color: #ffffff;
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      text-decoration: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .logout button {
+      background: #dbeafe;
+      color: #174ea6;
+    }
+
+    .metric-grid,
+    .two-column {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
+    }
+
+    .metric {
+      padding: 18px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 2rem;
+      margin: 8px 0;
+    }
+
+    .muted {
+      color: #64748b;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(120px, 0.7fr) 2fr 46px;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .bar-track {
+      background: #e2e8f0;
+      border-radius: 999px;
+      height: 12px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #174ea6, #22c55e);
+      border-radius: 999px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    code {
+      background: #f1f5f9;
+      border-radius: 6px;
+      padding: 2px 6px;
+    }
+
+    @media (max-width: 780px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div>
+        <p class="muted">Running as the CW2 staff dashboard on <strong>localhost:3001</strong>.</p>
+        <h1><%= title %></h1>
+        <p>Monitor member records, blind bidding outcomes, API tokens, scoped client access, and endpoint usage in one place.</p>
+        <nav class="nav">
+          <a href="/staff/dashboard">Dashboard</a>
+          <a href="/staff/graphs">Graphs Pages</a>
+          <a href="/staff/records">View Records</a>
+          <a href="/developer-portal">API Keys & Usage</a>
+          <a href="/api-docs">Swagger Docs</a>
+        </nav>
+      </div>
+      <form class="logout" method="POST" action="/logout">
+        <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+        <p><strong>Signed in:</strong> <%= user.fullName %></p>
+        <p class="muted"><%= user.email %></p>
+        <button type="submit">Logout</button>
+      </form>
+    </section>
+
+    <section class="metric-grid">
+      <article class="metric">
+        <span>Registered Records</span>
+        <strong><%= summary.registeredAlumni %></strong>
+        <span class="muted"><%= summary.verifiedAlumni %> verified accounts</span>
+      </article>
+      <article class="metric">
+        <span>Completed Profiles</span>
+        <strong><%= summary.completedProfiles %></strong>
+        <span class="muted"><%= summary.programmeCount %> programmes tracked</span>
+      </article>
+      <article class="metric">
+        <span>Blind Bids</span>
+        <strong><%= summary.totalBids %></strong>
+        <span class="muted"><%= summary.featuredWinners %> selected featured profiles</span>
+      </article>
+      <article class="metric">
+        <span>API Requests</span>
+        <strong><%= summary.totalApiRequests %></strong>
+        <span class="muted"><%= summary.activeTokens %> active bearer tokens</span>
+      </article>
+    </section>
+
+    <section class="two-column">
+      <article class="card">
+        <h2>Featured Profile Status</h2>
+        <% if (todayFeatured) { %>
+          <p><strong>Today's selected profile:</strong> <%= todayFeatured.alumni.fullName %></p>
+          <p class="muted"><%= todayFeatured.featuredDate %> · <%= todayFeatured.alumni.programme || "Programme not set" %> · <%= todayFeatured.alumni.industrySector || "Industry not set" %></p>
+        <% } else { %>
+          <p class="muted">No profile has been selected for today's featured slot yet.</p>
+        <% } %>
+
+        <% if (tomorrowLeadingFeatured) { %>
+          <p><strong>Tomorrow current leader:</strong> <%= tomorrowLeadingFeatured.alumni.fullName %></p>
+          <p class="muted"><%= tomorrowLeadingFeatured.featuredDate %> · status: <%= tomorrowLeadingFeatured.previewStatus %></p>
+        <% } else { %>
+          <p class="muted">No eligible leading bid exists for tomorrow yet.</p>
+        <% } %>
+      </article>
+
+      <article class="card">
+        <h2>API Client Security</h2>
+        <p>Analytics Dashboard tokens are scoped to record and analytics permissions.</p>
+        <p>Mobile AR App tokens are scoped to the daily featured profile permission only.</p>
+        <p class="muted">A compromised key can only access endpoints allowed by its own scope list.</p>
+      </article>
+    </section>
+
+    <section class="two-column">
+      <% const programmeMax = Math.max(1, ...graphData.byProgramme.map((row) => row.value)); %>
+      <article class="card">
+        <h2>Records By Programme</h2>
+        <% if (graphData.byProgramme.length) { %>
+          <% graphData.byProgramme.slice(0, 6).forEach(function(row) { %>
+            <div class="bar-row">
+              <span><%= row.label %></span>
+              <div class="bar-track"><div class="bar-fill" style="width:<%= Math.round((row.value / programmeMax) * 100) %>%"></div></div>
+              <strong><%= row.value %></strong>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <p class="muted">No programme data has been recorded yet.</p>
+        <% } %>
+      </article>
+
+      <% const industryMax = Math.max(1, ...graphData.byIndustrySector.map((row) => row.value)); %>
+      <article class="card">
+        <h2>Records By Industry</h2>
+        <% if (graphData.byIndustrySector.length) { %>
+          <% graphData.byIndustrySector.slice(0, 6).forEach(function(row) { %>
+            <div class="bar-row">
+              <span><%= row.label %></span>
+              <div class="bar-track"><div class="bar-fill" style="width:<%= Math.round((row.value / industryMax) * 100) %>%"></div></div>
+              <strong><%= row.value %></strong>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <p class="muted">No industry data has been recorded yet.</p>
+        <% } %>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>Recent API Key Usage</h2>
+      <% if (recentApiUsageLogs.length) { %>
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Client</th>
+              <th>Token</th>
+              <th>Endpoint</th>
+              <th>Outcome</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% recentApiUsageLogs.forEach(function(log) { %>
+              <tr>
+                <td><%= new Date(log.used_at).toLocaleString() %></td>
+                <td><%= log.client_name || "Unknown client" %><br /><span class="muted"><%= log.client_type || "N/A" %></span></td>
+                <td><code><%= log.token_prefix || "N/A" %></code><br /><span class="muted"><%= log.scope_list || "No scope" %></span></td>
+                <td><code><%= log.request_method %> <%= log.endpoint_path %></code></td>
+                <td><%= log.outcome %> · <%= log.http_status || "N/A" %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p class="muted">No API token usage has been logged yet.</p>
+      <% } %>
+    </section>
+  </div>
+</body>
+</html>
