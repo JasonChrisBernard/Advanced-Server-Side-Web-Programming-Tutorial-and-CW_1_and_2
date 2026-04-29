@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Register</title>
+</head>
+<body>
+  <h1>Register</h1>
+
+  <% if (error) { %>
+    <p style="color:red;"><%= error %></p>
+  <% } %>
+
+  <form method="POST" action="/register">
+    <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+    <div>
+      <label>Full Name</label>
+      <input type="text" name="fullName" />
+    </div>
+
+    <div>
+      <label>Email</label>
+      <input type="email" name="email" />
+    </div>
+
+    <div>
+      <label>Password</label>
+      <input type="password" name="password" />
+      <small>Use at least 12 characters with uppercase, lowercase, number, and special character.</small>
+    </div>
+
+    <div>
+      <label>Confirm Password</label>
+      <input type="password" name="confirmPassword" />
+    </div>
+
+    <button type="submit">Register</button>
+  </form>
+
+  <p><a href="/login">Already have an account?</a></p>
+</body>
+</html>

@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f7fb;
+      color: #1f2937;
+      margin: 0;
+      padding: 32px 16px;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .hero,
+    .section,
+    .entry-card,
+    .actions {
+      background: #ffffff;
+      border: 1px solid #dbe4f0;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+    }
+
+    .hero,
+    .section,
+    .actions {
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1,
+    .section h2 {
+      margin-top: 0;
+    }
+
+    .helper {
+      color: #4b5563;
+      line-height: 1.6;
+    }
+
+    .message {
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+
+    .message.error {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #b91c1c;
+    }
+
+    .message.success {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #047857;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      box-sizing: border-box;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+
+    .readonly {
+      background: #eef2ff;
+      color: #374151;
+    }
+
+    .entry-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .entry-card {
+      padding: 18px;
+    }
+
+    .entry-card h3 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1rem;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    button,
+    .link-button {
+      border: none;
+      border-radius: 10px;
+      padding: 11px 16px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .secondary {
+      background: #e2e8f0;
+      color: #1f2937;
+    }
+
+    .danger {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .image-preview {
+      margin-top: 14px;
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 14px;
+      border: 1px solid #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <!-- This top card explains what the page is for before the user starts typing. -->
+    <section class="hero">
+      <h1><%= title %></h1>
+      <p class="helper">
+        Use this page to build a complete alumni profile with personal details, biography,
+        LinkedIn URL, education, certifications, licences, short courses, employment history,
+        and an optional profile image.
+      </p>
+    </section>
+
+    <!-- Show page-level feedback when validation or saving succeeds/fails. -->
+    <% if (error) { %>
+      <div class="message error"><%= error %></div>
+    <% } %>
+
+    <% if (success) { %>
+      <div class="message success"><%= success %></div>
+    <% } %>
+
+    <!-- multipart/form-data is required whenever a form includes a file upload. -->
+    <form method="POST" action="/alumni-profile/edit" enctype="multipart/form-data">
+      <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+      <!-- Personal information section -->
+      <section class="section">
+        <h2>Personal Information</h2>
+        <p class="helper">
+          Your account name and login email come from the session. The additional fields below
+          let you complete the public alumni profile.
+        </p>
+
+        <div class="grid">
+          <div>
+            <label for="fullName">Full Name</label>
+            <input id="fullName" class="readonly" type="text" value="<%= formData.fullName %>" readonly />
+          </div>
+
+          <div>
+            <label for="email">Email</label>
+            <input id="email" class="readonly" type="email" value="<%= formData.email %>" readonly />
+          </div>
+
+          <div>
+            <label for="contactNumber">Contact Number</label>
+            <input id="contactNumber" name="contactNumber" type="text" value="<%= formData.contactNumber %>" />
+          </div>
+
+          <div>
+            <label for="location">Location</label>
+            <input id="location" name="location" type="text" value="<%= formData.location %>" />
+          </div>
+        </div>
+
+        <div class="grid" style="margin-top: 16px;">
+          <div>
+            <label for="professionalHeadline">Professional Headline</label>
+            <input
+              id="professionalHeadline"
+              name="professionalHeadline"
+              type="text"
+              value="<%= formData.professionalHeadline %>"
+              placeholder="Example: Software Engineer and Data Analyst"
+            />
+          </div>
+
+          <div>
+            <label for="linkedinUrl">LinkedIn Profile URL</label>
+            <input
+              id="linkedinUrl"
+              name="linkedinUrl"
+              type="url"
+              value="<%= formData.linkedinUrl %>"
+              placeholder="https://www.linkedin.com/in/your-profile"
+            />
+          </div>
+        </div>
+
+        <div style="margin-top: 16px;">
+          <label for="biography">Biography</label>
+          <textarea
+            id="biography"
+            name="biography"
+            placeholder="Write a short professional biography for the alumni profile."
+          ><%= formData.biography %></textarea>
+        </div>
+
+        <div style="margin-top: 16px;">
+          <label for="profileImage">Profile Image Upload</label>
+          <input id="profileImage" name="profileImage" type="file" accept="image/*" />
+
+          <% if (formData.profileImagePath) { %>
+            <div>
+              <img
+                class="image-preview"
+                src="<%= formData.profileImagePath %>"
+                alt="Current profile preview"
+              />
+            </div>
+          <% } %>
+        </div>
+      </section>
+
+      <!-- Each repeatable section below uses repeated input names so the server receives arrays. -->
+      <section class="section">
+        <h2>Degrees</h2>
+        <p class="helper">Add each degree with the official university degree-page URL and completion date.</p>
+        <div id="degreesList" class="entry-list">
+          <% formData.degrees.forEach(function(degree, index) { %>
+            <div class="entry-card" data-entry>
+              <h3>Degree <span data-entry-number><%= index + 1 %></span></h3>
+              <div class="grid">
+                <div>
+                  <label>Degree Title</label>
+                  <input name="degreeTitle" type="text" value="<%= degree.title %>" />
+                </div>
+                <div>
+                  <label>Institution Name</label>
+                  <input name="degreeInstitution" type="text" value="<%= degree.institution_name %>" />
+                </div>
+                <div>
+                  <label>Official Degree Page URL</label>
+                  <input name="degreeUrl" type="url" value="<%= degree.official_url %>" />
+                </div>
+                <div>
+                  <label>Completion Date</label>
+                  <input name="degreeCompletionDate" type="date" value="<%= degree.completion_date %>" />
+                </div>
+              </div>
+              <div class="button-row">
+                <button class="danger" type="button" data-remove-entry>Remove Degree</button>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        <div class="button-row">
+          <button class="secondary" type="button" data-add-entry="degree">Add Degree</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Professional Certifications</h2>
+        <p class="helper">Add certifications with the official course page URL and completion date.</p>
+        <div id="certificationsList" class="entry-list">
+          <% formData.certifications.forEach(function(certification, index) { %>
+            <div class="entry-card" data-entry>
+              <h3>Certification <span data-entry-number><%= index + 1 %></span></h3>
+              <div class="grid">
+                <div>
+                  <label>Certification Title</label>
+                  <input name="certificationTitle" type="text" value="<%= certification.title %>" />
+                </div>
+                <div>
+                  <label>Provider Name</label>
+                  <input name="certificationProvider" type="text" value="<%= certification.provider_name %>" />
+                </div>
+                <div>
+                  <label>Course Page URL</label>
+                  <input name="certificationUrl" type="url" value="<%= certification.official_url %>" />
+                </div>
+                <div>
+                  <label>Completion Date</label>
+                  <input name="certificationCompletionDate" type="date" value="<%= certification.completion_date %>" />
+                </div>
+              </div>
+              <div class="button-row">
+                <button class="danger" type="button" data-remove-entry>Remove Certification</button>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        <div class="button-row">
+          <button class="secondary" type="button" data-add-entry="certification">Add Certification</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Professional Licences</h2>
+        <p class="helper">Add licences with the awarding-body URL and completion date.</p>
+        <div id="licensesList" class="entry-list">
+          <% formData.licenses.forEach(function(license, index) { %>
+            <div class="entry-card" data-entry>
+              <h3>Licence <span data-entry-number><%= index + 1 %></span></h3>
+              <div class="grid">
+                <div>
+                  <label>Licence Title</label>
+                  <input name="licenseTitle" type="text" value="<%= license.title %>" />
+                </div>
+                <div>
+                  <label>Awarding Body</label>
+                  <input name="licenseAwardingBody" type="text" value="<%= license.awarding_body %>" />
+                </div>
+                <div>
+                  <label>Awarding Body URL</label>
+                  <input name="licenseUrl" type="url" value="<%= license.official_url %>" />
+                </div>
+                <div>
+                  <label>Completion Date</label>
+                  <input name="licenseCompletionDate" type="date" value="<%= license.completion_date %>" />
+                </div>
+              </div>
+              <div class="button-row">
+                <button class="danger" type="button" data-remove-entry>Remove Licence</button>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        <div class="button-row">
+          <button class="secondary" type="button" data-add-entry="license">Add Licence</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Short Professional Courses</h2>
+        <p class="helper">Add short courses with the course page URL and completion date.</p>
+        <div id="coursesList" class="entry-list">
+          <% formData.courses.forEach(function(course, index) { %>
+            <div class="entry-card" data-entry>
+              <h3>Course <span data-entry-number><%= index + 1 %></span></h3>
+              <div class="grid">
+                <div>
+                  <label>Course Title</label>
+                  <input name="courseTitle" type="text" value="<%= course.title %>" />
+                </div>
+                <div>
+                  <label>Provider Name</label>
+                  <input name="courseProvider" type="text" value="<%= course.provider_name %>" />
+                </div>
+                <div>
+                  <label>Course Page URL</label>
+                  <input name="courseUrl" type="url" value="<%= course.official_url %>" />
+                </div>
+                <div>
+                  <label>Completion Date</label>
+                  <input name="courseCompletionDate" type="date" value="<%= course.completion_date %>" />
+                </div>
+              </div>
+              <div class="button-row">
+                <button class="danger" type="button" data-remove-entry>Remove Course</button>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        <div class="button-row">
+          <button class="secondary" type="button" data-add-entry="course">Add Course</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Employment History</h2>
+        <p class="helper">Add each employment record with job title, employer, and start/end dates.</p>
+        <div id="employmentList" class="entry-list">
+          <% formData.employmentHistory.forEach(function(job, index) { %>
+            <div class="entry-card" data-entry>
+              <h3>Employment Record <span data-entry-number><%= index + 1 %></span></h3>
+              <div class="grid">
+                <div>
+                  <label>Employer Name</label>
+                  <input name="employmentEmployer" type="text" value="<%= job.employer_name %>" />
+                </div>
+                <div>
+                  <label>Job Title</label>
+                  <input name="employmentJobTitle" type="text" value="<%= job.job_title %>" />
+                </div>
+                <div>
+                  <label>Start Date</label>
+                  <input name="employmentStartDate" type="date" value="<%= job.start_date %>" />
+                </div>
+                <div>
+                  <label>End Date</label>
+                  <input name="employmentEndDate" type="date" value="<%= job.end_date %>" />
+                </div>
+              </div>
+              <div class="button-row">
+                <button class="danger" type="button" data-remove-entry>Remove Employment Record</button>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+        <div class="button-row">
+          <button class="secondary" type="button" data-add-entry="employment">Add Employment Record</button>
+        </div>
+      </section>
+
+      <section class="actions">
+        <div class="button-row">
+          <button class="primary" type="submit">Save Alumni Profile</button>
+          <a class="link-button secondary" href="/alumni-profile">View Saved Profile</a>
+          <a class="link-button secondary" href="/">Back to Home</a>
+        </div>
+      </section>
+    </form>
+
+    <% if (hasExistingProfile) { %>
+      <section class="actions">
+        <h2>Delete Alumni Profile</h2>
+        <p class="helper">
+          This removes the profile image path, biography, education, certifications, licences,
+          courses, and employment history linked to your alumni profile.
+        </p>
+        <form method="POST" action="/alumni-profile/delete" onsubmit="return confirm('Delete your alumni profile and all related entries?');">
+          <input type="hidden" name="csrfToken" value="<%= csrfToken %>" />
+          <div class="button-row">
+            <button class="danger" type="submit">Delete Alumni Profile</button>
+          </div>
+        </form>
+      </section>
+    <% } %>
+  </div>
+
+  <!-- This template stores the HTML for rows added dynamically in JavaScript. -->
+  <template id="degreeTemplate">
+    <div class="entry-card" data-entry>
+      <h3>Degree <span data-entry-number></span></h3>
+      <div class="grid">
+        <div><label>Degree Title</label><input name="degreeTitle" type="text" /></div>
+        <div><label>Institution Name</label><input name="degreeInstitution" type="text" /></div>
+        <div><label>Official Degree Page URL</label><input name="degreeUrl" type="url" /></div>
+        <div><label>Completion Date</label><input name="degreeCompletionDate" type="date" /></div>
+      </div>
+      <div class="button-row"><button class="danger" type="button" data-remove-entry>Remove Degree</button></div>
+    </div>
+  </template>
+
+  <template id="certificationTemplate">
+    <div class="entry-card" data-entry>
+      <h3>Certification <span data-entry-number></span></h3>
+      <div class="grid">
+        <div><label>Certification Title</label><input name="certificationTitle" type="text" /></div>
+        <div><label>Provider Name</label><input name="certificationProvider" type="text" /></div>
+        <div><label>Course Page URL</label><input name="certificationUrl" type="url" /></div>
+        <div><label>Completion Date</label><input name="certificationCompletionDate" type="date" /></div>
+      </div>
+      <div class="button-row"><button class="danger" type="button" data-remove-entry>Remove Certification</button></div>
+    </div>
+  </template>
+
+  <template id="licenseTemplate">
+    <div class="entry-card" data-entry>
+      <h3>Licence <span data-entry-number></span></h3>
+      <div class="grid">
+        <div><label>Licence Title</label><input name="licenseTitle" type="text" /></div>
+        <div><label>Awarding Body</label><input name="licenseAwardingBody" type="text" /></div>
+        <div><label>Awarding Body URL</label><input name="licenseUrl" type="url" /></div>
+        <div><label>Completion Date</label><input name="licenseCompletionDate" type="date" /></div>
+      </div>
+      <div class="button-row"><button class="danger" type="button" data-remove-entry>Remove Licence</button></div>
+    </div>
+  </template>
+
+  <template id="courseTemplate">
+    <div class="entry-card" data-entry>
+      <h3>Course <span data-entry-number></span></h3>
+      <div class="grid">
+        <div><label>Course Title</label><input name="courseTitle" type="text" /></div>
+        <div><label>Provider Name</label><input name="courseProvider" type="text" /></div>
+        <div><label>Course Page URL</label><input name="courseUrl" type="url" /></div>
+        <div><label>Completion Date</label><input name="courseCompletionDate" type="date" /></div>
+      </div>
+      <div class="button-row"><button class="danger" type="button" data-remove-entry>Remove Course</button></div>
+    </div>
+  </template>
+
+  <template id="employmentTemplate">
+    <div class="entry-card" data-entry>
+      <h3>Employment Record <span data-entry-number></span></h3>
+      <div class="grid">
+        <div><label>Employer Name</label><input name="employmentEmployer" type="text" /></div>
+        <div><label>Job Title</label><input name="employmentJobTitle" type="text" /></div>
+        <div><label>Start Date</label><input name="employmentStartDate" type="date" /></div>
+        <div><label>End Date</label><input name="employmentEndDate" type="date" /></div>
+      </div>
+      <div class="button-row"><button class="danger" type="button" data-remove-entry>Remove Employment Record</button></div>
+    </div>
+  </template>
+
+  <script>
+    // This map connects each "Add" button to its list container and HTML template.
+    const sectionConfig = {
+      degree: { listId: "degreesList", templateId: "degreeTemplate" },
+      certification: { listId: "certificationsList", templateId: "certificationTemplate" },
+      license: { listId: "licensesList", templateId: "licenseTemplate" },
+      course: { listId: "coursesList", templateId: "courseTemplate" },
+      employment: { listId: "employmentList", templateId: "employmentTemplate" },
+    };
+
+    // Renumber the cards in a section so the displayed row numbers stay tidy.
+    function renumberEntries(listElement) {
+      const cards = listElement.querySelectorAll("[data-entry]");
+
+      cards.forEach((card, index) => {
+        const numberElement = card.querySelector("[data-entry-number]");
+        if (numberElement) {
+          numberElement.textContent = index + 1;
+        }
+      });
+    }
+
+    // Add a fresh empty row into the requested repeatable section.
+    function addEntry(sectionKey) {
+      const config = sectionConfig[sectionKey];
+      const list = document.getElementById(config.listId);
+      const template = document.getElementById(config.templateId);
+      const fragment = template.content.cloneNode(true);
+
+      list.appendChild(fragment);
+      renumberEntries(list);
+    }
+
+    // Listen for clicks on all "Add section row" buttons.
+    document.querySelectorAll("[data-add-entry]").forEach((button) => {
+      button.addEventListener("click", () => {
+        addEntry(button.getAttribute("data-add-entry"));
+      });
+    });
+
+    // Handle row removal through one event listener attached to the whole document.
+    document.addEventListener("click", (event) => {
+      if (!event.target.matches("[data-remove-entry]")) {
+        return;
+      }
+
+      const card = event.target.closest("[data-entry]");
+      const list = card.parentElement;
+
+      // Keep at least one row visible in each section so the form never looks broken.
+      if (list.querySelectorAll("[data-entry]").length === 1) {
+        card.querySelectorAll("input").forEach((input) => {
+          input.value = "";
+        });
+      } else {
+        card.remove();
+      }
+
+      renumberEntries(list);
+    });
+
+    // Number all pre-rendered rows on first page load.
+    Object.values(sectionConfig).forEach((config) => {
+      renumberEntries(document.getElementById(config.listId));
+    });
+  </script>
+</body>
+</html>

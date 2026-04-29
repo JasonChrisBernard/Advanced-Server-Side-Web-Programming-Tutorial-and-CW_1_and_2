@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 28px 16px 40px;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 18px;
+      padding: 22px;
+    }
+
+    pre,
+    code {
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    pre {
+      background: #020617;
+      padding: 16px;
+      border-radius: 14px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #1d4ed8;
+      color: #eff6ff;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    a {
+      color: #93c5fd;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <%# This page presents the public developer API in a Swagger-style learning format. %>
+    <section class="card">
+      <h1><%= title %></h1>
+      <p><a href="/">Back to home</a> | <a href="/developer-portal">Open developer portal</a> | <a href="/developer-api/swagger.json">Download Swagger JSON</a></p>
+      <p><span class="pill">OpenAPI <%= spec.openapi %></span></p>
+      <p><strong>API title:</strong> <%= spec.info.title %></p>
+      <p><strong>Version:</strong> <%= spec.info.version %></p>
+      <p><strong>Description:</strong> <%= spec.info.description %></p>
+    </section>
+
+    <%# This card explains how bearer-token authentication should be used by external clients. %>
+    <section class="card">
+      <h2>Security</h2>
+      <p>All public developer API calls are protected by a bearer token.</p>
+      <p>Send the token in the header below:</p>
+      <pre>Authorization: Bearer YOUR_TOKEN_HERE</pre>
+      <p>The current endpoint requires the <code>featured:read</code> scope.</p>
+      <p>Developer portal tokens expire automatically after <strong><%= apiTokenTtlDays %> days</strong> unless revoked earlier.</p>
+    </section>
+
+    <%# This card documents the featured alumnus endpoint in a route-by-route format. %>
+    <section class="card">
+      <h2>Endpoint</h2>
+      <p><strong>Method:</strong> <code>GET</code></p>
+      <p><strong>Path:</strong> <code>/api/v1/featured-alumnus/today</code></p>
+      <p><strong>Full local URL:</strong> <code><%= todayEndpoint %></code></p>
+      <p><strong>Behavior:</strong> Returns the alumnus whose winning blind bid was activated for today's featured date.</p>
+
+      <h3>Example cURL Request</h3>
+      <pre>curl -X GET "<%= todayEndpoint %>" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE"</pre>
+
+      <h3>Success Response Shape</h3>
+      <pre>{
+  "success": true,
+  "data": {
+    "featuredDate": "2026-03-13",
+    "featureMonthKey": "2026-03",
+    "featureMonthLabel": "March 2026",
+    "alumni": {
+      "fullName": "Jane Doe",
+      "email": "jane.doe@iit.ac.lk",
+      "contactNumber": "+94 77 123 4567",
+      "professionalHeadline": "Senior Software Engineer",
+      "biography": "Alumna working in cloud engineering and developer platforms.",
+      "linkedinUrl": "https://www.linkedin.com/in/jane-doe",
+      "location": "Colombo",
+      "profileImageUrl": "/uploads/profiles/example.png",
+      "degrees": [
+        {
+          "title": "BSc (Hons) Computer Science",
+          "institutionName": "University of Westminster",
+          "officialUrl": "https://www.westminster.ac.uk/computing",
+          "completionDate": "2024-06-01"
+        }
+      ],
+      "certifications": [],
+      "licenses": [],
+      "courses": [],
+      "employmentHistory": [],
+      "selectedAt": "2026-03-13T00:00:00.000Z"
+    }
+  }
+}</pre>
+    </section>
+
+    <%# This final card exposes the raw OpenAPI JSON so the coursework includes machine-readable Swagger documentation too. %>
+    <section class="card">
+      <h2>Swagger / OpenAPI JSON</h2>
+      <pre><%= swaggerJson %></pre>
+    </section>
+  </div>
+</body>
+</html>
