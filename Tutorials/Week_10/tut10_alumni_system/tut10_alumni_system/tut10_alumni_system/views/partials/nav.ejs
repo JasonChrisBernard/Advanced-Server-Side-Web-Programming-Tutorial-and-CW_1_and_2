@@ -1,0 +1,23 @@
+<nav class="navbar">
+  <a class="brand" href="/">AlumniConnect</a>
+
+  <div class="nav-links">
+    <% if (currentUser) { %>
+      <a href="/profile">Profile</a>
+      <a href="/bids">Blind Bidding</a>
+      <a href="/dashboard">Analytics</a>
+
+      <% if (currentUser.role === 'developer') { %>
+        <a href="/developer/api-docs">API Docs</a>
+        <a href="/developer/api-keys">API Keys</a>
+      <% } %>
+
+      <form action="/auth/logout" method="POST" class="inline-form">
+        <button class="link-button" type="submit">Logout</button>
+      </form>
+    <% } else { %>
+      <a href="/auth/login">Login</a>
+      <a href="/auth/register">Register</a>
+    <% } %>
+  </div>
+</nav>

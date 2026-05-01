@@ -1,0 +1,19 @@
+{
+  "name": "student-course-management-api-mvc",
+  "version": "1.0.0",
+  "description": "Node.js MVC Student and Course Management API using in-memory data and API key authentication",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "express-session": "^1.18.0",
+    "method-override": "^3.0.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

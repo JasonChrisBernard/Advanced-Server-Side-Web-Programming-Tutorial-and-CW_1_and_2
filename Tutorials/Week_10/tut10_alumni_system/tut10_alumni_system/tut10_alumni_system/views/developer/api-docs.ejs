@@ -1,0 +1,54 @@
+<%- include('../partials/header') %>
+
+<section class="card">
+  <h1>Developer API Documentation</h1>
+  <p class="muted">
+    This page is only visible to developer accounts. Alumni users cannot access API documentation.
+  </p>
+
+  <h2>Authentication</h2>
+  <p>All API requests must include a valid API key in the request header.</p>
+
+  <pre><code>x-api-key: YOUR_API_KEY</code></pre>
+
+  <h2>Available API Endpoints</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Endpoint</th>
+          <th>Method</th>
+          <th>Permission Required</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>/api/analytics</td>
+          <td>GET</td>
+          <td>read:analytics</td>
+          <td>Returns dashboard analytics data.</td>
+        </tr>
+        <tr>
+          <td>/api/profiles</td>
+          <td>GET</td>
+          <td>read:profiles</td>
+          <td>Returns alumni profile data.</td>
+        </tr>
+        <tr>
+          <td>/api/bids</td>
+          <td>GET</td>
+          <td>read:bids</td>
+          <td>Returns bidding data for analytics use.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Example Request</h2>
+
+  <pre><code>curl -H "x-api-key: YOUR_API_KEY" http://localhost:3000/api/analytics</code></pre>
+</section>
+
+<%- include('../partials/footer') %>

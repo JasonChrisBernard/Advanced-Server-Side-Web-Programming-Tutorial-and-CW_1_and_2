@@ -1,0 +1,32 @@
+<%- include('../partials/header') %>
+<section class="card">
+  <h1>Edit Alumni Profile</h1>
+  <form method="POST" action="/profile/edit" class="form-grid">
+    <label>First Name
+      <input name="first_name" value="<%= alumni.first_name || '' %>" required>
+    </label>
+    <label>Last Name
+      <input name="last_name" value="<%= alumni.last_name || '' %>" required>
+    </label>
+    <label>Program
+      <input name="program" value="<%= alumni.program || '' %>">
+    </label>
+    <label>Graduation Year
+      <input type="number" name="graduation_year" value="<%= alumni.graduation_year || '' %>">
+    </label>
+    <label>Industry Sector
+      <input name="industry_sector" value="<%= alumni.industry_sector || '' %>">
+    </label>
+    <label>Current Job Title
+      <input name="current_job_title" value="<%= alumni.current_job_title || '' %>">
+    </label>
+    <label>Company
+      <input name="company" value="<%= alumni.company || '' %>">
+    </label>
+    <label>LinkedIn URL
+      <input type="url" name="linkedin_url" value="<%= alumni.linkedin_url || '' %>">
+    </label>
+    <button class="btn primary full" type="submit">Save Profile</button>
+  </form>
+</section>
+<%- include('../partials/footer') %>

@@ -1,0 +1,41 @@
+{
+  "name": "tut10-alumni-profile-bidding-dashboard",
+  "version": "1.0.0",
+  "description": "Node.js, Express, EJS and MySQL coursework implementation for alumni profile management, blind bidding and analytics dashboard.",
+  "main": "src/server.js",
+  "scripts": {
+  "start": "node src/server.js",
+  "dev": "nodemon src/server.js",
+  "create-api-key": "node scripts/createApiKey.js",
+  "setup-db": "node scripts/setupDatabase.js"
+},
+  "keywords": [
+    "nodejs",
+    "express",
+    "ejs",
+    "mysql",
+    "alumni",
+    "dashboard"
+  ],
+  "author": "Coursework Starter",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "chart.js": "^4.4.9",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "express-validator": "^7.2.1",
+    "helmet": "^8.1.0",
+    "method-override": "^3.0.0",
+    "multer": "^1.4.5-lts.1",
+    "mysql2": "^3.14.1",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.10.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}

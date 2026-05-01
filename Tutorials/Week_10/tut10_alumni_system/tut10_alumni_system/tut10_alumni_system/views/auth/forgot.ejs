@@ -1,0 +1,11 @@
+<%- include('../partials/header') %>
+<section class="card auth-card narrow">
+  <h1>Forgot Password</h1>
+  <form method="POST" action="/auth/forgot" class="stack-form">
+    <label>Email
+      <input type="email" name="email" required>
+    </label>
+    <button class="btn primary" type="submit">Send Reset Link</button>
+  </form>
+</section>
+<%- include('../partials/footer') %>

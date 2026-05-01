@@ -1,0 +1,102 @@
+<%- include('../partials/header') %>
+<section class="hero-grid">
+  <div class="card profile-hero">
+    <div class="avatar-wrap">
+      <% if (alumni.profile_image) { %>
+        <img class="avatar" src="/uploads/<%= alumni.profile_image %>" alt="Profile image">
+      <% } else { %>
+        <div class="avatar placeholder"><%= alumni.first_name[0] %><%= alumni.last_name[0] %></div>
+      <% } %>
+    </div>
+    <div>
+      <h1><%= alumni.first_name %> <%= alumni.last_name %></h1>
+      <p><strong><%= alumni.current_job_title || 'Job title not added' %></strong> <%= alumni.company ? 'at ' + alumni.company : '' %></p>
+      <p class="muted"><%= alumni.program || 'Program not added' %> <%= alumni.graduation_year ? '• ' + alumni.graduation_year : '' %></p>
+      <p class="muted"><%= alumni.industry_sector || 'Industry sector not added' %></p>
+      <% if (!alumni.email_verified) { %>
+        <p class="badge warning">Email not verified. Check the terminal or email inbox for verification link.</p>
+      <% } else { %>
+        <p class="badge success-badge">Verified alumni account</p>
+      <% } %>
+      <% if (alumni.linkedin_url) { %>
+        <a class="btn secondary" href="<%= alumni.linkedin_url %>" target="_blank" rel="noopener">View LinkedIn</a>
+      <% } %>
+      <a class="btn primary" href="/profile/edit">Edit Profile</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Profile Image</h2>
+    <form method="POST" action="/profile/image" enctype="multipart/form-data" class="stack-form">
+      <input type="file" name="profile_image" accept="image/png,image/jpeg,image/webp" required>
+      <button class="btn secondary" type="submit">Upload Image</button>
+      <p class="muted">Accepted: JPG, PNG, WEBP. Maximum size: 2 MB.</p>
+    </form>
+  </div>
+</section>
+
+<section class="card">
+  <div class="section-title">
+    <h2>Professional Qualifications</h2>
+    <div class="button-row">
+      <a class="btn small" href="/profile/items/new?type=degree">Add Degree</a>
+      <a class="btn small" href="/profile/items/new?type=certification">Add Certification</a>
+      <a class="btn small" href="/profile/items/new?type=license">Add License</a>
+      <a class="btn small" href="/profile/items/new?type=course">Add Course</a>
+    </div>
+  </div>
+
+  <% ['degree', 'certification', 'license', 'course'].forEach(function(type) { %>
+    <h3 class="capitalize"><%= type %>s</h3>
+    <div class="grid-list">
+      <% if (groupedItems[type] && groupedItems[type].length) { %>
+        <% groupedItems[type].forEach(function(item) { %>
+          <article class="mini-card">
+            <h4><%= item.title %></h4>
+            <p class="muted"><%= item.institution || 'Institution not added' %></p>
+            <p><%= item.field_of_study || '' %></p>
+            <p class="muted"><%= item.start_date || '' %> <%= item.end_date ? '– ' + item.end_date : '' %></p>
+            <p><%= item.description || '' %></p>
+            <div class="button-row">
+              <a class="btn small secondary" href="/profile/items/<%= item.id %>/edit">Edit</a>
+              <form method="POST" action="/profile/items/<%= item.id %>/delete" onsubmit="return confirm('Delete this item?')">
+                <button class="btn small danger" type="submit">Delete</button>
+              </form>
+            </div>
+          </article>
+        <% }) %>
+      <% } else { %>
+        <p class="muted">No <%= type %> records added yet.</p>
+      <% } %>
+    </div>
+  <% }) %>
+</section>
+
+<section class="card">
+  <div class="section-title">
+    <h2>Employment History</h2>
+    <a class="btn small" href="/profile/employment/new">Add Employment</a>
+  </div>
+  <div class="grid-list">
+    <% if (employment.length) { %>
+      <% employment.forEach(function(job) { %>
+        <article class="mini-card">
+          <h4><%= job.job_title %></h4>
+          <p><strong><%= job.company %></strong></p>
+          <p class="muted"><%= job.industry_sector || '' %></p>
+          <p class="muted"><%= job.start_date || '' %> <%= job.is_current ? '– Present' : (job.end_date ? '– ' + job.end_date : '') %></p>
+          <p><%= job.description || '' %></p>
+          <div class="button-row">
+            <a class="btn small secondary" href="/profile/employment/<%= job.id %>/edit">Edit</a>
+            <form method="POST" action="/profile/employment/<%= job.id %>/delete" onsubmit="return confirm('Delete this employment record?')">
+              <button class="btn small danger" type="submit">Delete</button>
+            </form>
+          </div>
+        </article>
+      <% }) %>
+    <% } else { %>
+      <p class="muted">No employment history added yet.</p>
+    <% } %>
+  </div>
+</section>
+<%- include('../partials/footer') %>

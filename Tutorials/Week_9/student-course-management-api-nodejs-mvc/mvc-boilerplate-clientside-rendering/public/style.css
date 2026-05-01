@@ -1,0 +1,237 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6fb;
+  color: #1f2937;
+}
+
+header {
+  background: linear-gradient(135deg, #111827, #1d4ed8);
+  color: white;
+  padding: 36px 24px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 8px 0;
+  font-size: 34px;
+}
+
+header p {
+  max-width: 850px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #60a5fa;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+nav {
+  background: white;
+  padding: 16px;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+main {
+  padding: 28px;
+}
+
+.card {
+  background: white;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 26px;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.card.narrow {
+  max-width: 640px;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+h2 {
+  margin: 6px 0 0;
+  font-size: 26px;
+}
+
+h3 {
+  margin-top: 28px;
+}
+
+.pill {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: bold;
+}
+
+form {
+  display: grid;
+  gap: 12px;
+  max-width: 640px;
+  margin-bottom: 24px;
+}
+
+label {
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+input:focus {
+  outline: 2px solid #bfdbfe;
+  border-color: #2563eb;
+}
+
+button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1d4ed8;
+}
+
+button.secondary {
+  background: #6b7280;
+}
+
+button.secondary:hover {
+  background: #4b5563;
+}
+
+button.danger {
+  background: #dc2626;
+}
+
+button.danger:hover {
+  background: #b91c1c;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+th,
+td {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: #f9fafb;
+  font-weight: bold;
+}
+
+.actions {
+  white-space: nowrap;
+}
+
+.actions button {
+  margin: 3px;
+}
+
+pre {
+  background: #111827;
+  color: white;
+  padding: 16px;
+  border-radius: 10px;
+  overflow-x: auto;
+  line-height: 1.5;
+}
+
+code {
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.grid-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.mvc-list p {
+  line-height: 1.7;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.message {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.message.error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 26px;
+  }
+
+  main {
+    padding: 16px;
+  }
+
+  .section-title,
+  .grid-two {
+    display: block;
+  }
+
+  nav button {
+    width: 100%;
+    margin: 5px 0;
+  }
+}

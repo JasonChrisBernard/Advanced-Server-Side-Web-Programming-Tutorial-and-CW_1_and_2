@@ -1,0 +1,78 @@
+<%- include('../partials/header') %>
+<section class="card">
+  <h1>University Analytics Dashboard</h1>
+  <p class="muted">Career path, industry demand, professional development and bidding insights generated from alumni profile data.</p>
+  <form method="GET" action="/dashboard" class="filter-grid">
+    <label>Program
+      <select name="program">
+        <option value="">All programs</option>
+        <% options.programs.forEach(function(row) { %>
+          <option value="<%= row.program %>" <%= filters.program === row.program ? 'selected' : '' %>><%= row.program %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label>Graduation Year
+      <select name="graduation_year">
+        <option value="">All years</option>
+        <% options.years.forEach(function(row) { %>
+          <option value="<%= row.graduation_year %>" <%= String(filters.graduation_year) === String(row.graduation_year) ? 'selected' : '' %>><%= row.graduation_year %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label>Industry Sector
+      <select name="industry_sector">
+        <option value="">All industries</option>
+        <% options.industries.forEach(function(row) { %>
+          <option value="<%= row.industry_sector %>" <%= filters.industry_sector === row.industry_sector ? 'selected' : '' %>><%= row.industry_sector %></option>
+        <% }) %>
+      </select>
+    </label>
+    <button class="btn primary" type="submit">Apply Filters</button>
+  </form>
+</section>
+
+<section class="chart-grid">
+  <div class="card chart-card"><h2>Alumni by Program</h2><canvas id="programChart"></canvas></div>
+  <div class="card chart-card"><h2>Industry Demand</h2><canvas id="industryChart"></canvas></div>
+  <div class="card chart-card"><h2>Emerging Career Pathways</h2><canvas id="careerChart"></canvas></div>
+  <div class="card chart-card"><h2>Graduation Year Distribution</h2><canvas id="yearChart"></canvas></div>
+  <div class="card chart-card"><h2>Professional Development Trends</h2><canvas id="developmentChart"></canvas></div>
+  <div class="card chart-card"><h2>Monthly Bidding Activity</h2><canvas id="bidChart"></canvas></div>
+  <div class="card chart-card wide"><h2>Skill Gap Indicators</h2><canvas id="skillGapChart"></canvas></div>
+</section>
+
+<script src="/chartjs/chart.umd.js"></script>
+<script>
+  const dashboardData = <%- JSON.stringify(data) %>;
+
+  function labels(rows) { return rows.map(row => row.label); }
+  function totals(rows) { return rows.map(row => Number(row.total)); }
+  function amounts(rows) { return rows.map(row => Number(row.amount || 0)); }
+
+  function makeChart(id, type, rows, label, valueSelector = totals) {
+    const canvas = document.getElementById(id);
+    if (!canvas) return;
+    new Chart(canvas, {
+      type,
+      data: {
+        labels: labels(rows),
+        datasets: [{ label, data: valueSelector(rows), borderWidth: 1 }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: type !== 'bar' && type !== 'line' } },
+        scales: type === 'pie' || type === 'doughnut' || type === 'radar' ? {} : { y: { beginAtZero: true } }
+      }
+    });
+  }
+
+  makeChart('programChart', 'bar', dashboardData.programs, 'Alumni');
+  makeChart('industryChart', 'doughnut', dashboardData.industries, 'Alumni');
+  makeChart('careerChart', 'bar', dashboardData.careerPaths, 'Alumni');
+  makeChart('yearChart', 'line', dashboardData.graduationYears, 'Alumni');
+  makeChart('developmentChart', 'radar', dashboardData.professionalDevelopment, 'Records');
+  makeChart('bidChart', 'bar', dashboardData.monthlyBids, 'Bid Amount', amounts);
+  makeChart('skillGapChart', 'bar', dashboardData.skillGaps, 'Low Supply Skill Areas');
+</script>
+<%- include('../partials/footer') %>

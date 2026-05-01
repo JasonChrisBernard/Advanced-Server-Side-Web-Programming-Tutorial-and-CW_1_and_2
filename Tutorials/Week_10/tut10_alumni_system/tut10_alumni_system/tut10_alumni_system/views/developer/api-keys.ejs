@@ -1,0 +1,87 @@
+<%- include('../partials/header') %>
+
+<section class="card">
+  <h1>API Key Management</h1>
+  <p class="muted">
+    Only developer accounts can create or revoke API keys. Alumni users cannot access this page.
+  </p>
+
+  <% if (newApiKey) { %>
+    <div class="alert success">
+      <strong>New API Key Created:</strong>
+      <p>Copy this key now. It will not be shown again.</p>
+      <pre><code><%= newApiKey %></code></pre>
+    </div>
+  <% } %>
+
+  <form method="POST" action="/developer/api-keys" class="stack-form">
+    <label>API Key Name
+      <input type="text" name="name" required placeholder="Example: Dashboard Client">
+    </label>
+
+    <label>
+      <input type="checkbox" name="permissions" value="read:analytics">
+      read:analytics
+    </label>
+
+    <label>
+      <input type="checkbox" name="permissions" value="read:profiles">
+      read:profiles
+    </label>
+
+    <label>
+      <input type="checkbox" name="permissions" value="read:bids">
+      read:bids
+    </label>
+
+    <button class="btn primary" type="submit">Create API Key</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Existing API Keys</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Permissions</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th>Last Used</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% if (apiKeys.length) { %>
+          <% apiKeys.forEach(function(key) { %>
+            <tr>
+              <td><%= key.name %></td>
+              <td><%= Array.isArray(key.permissions) ? key.permissions.join(', ') : key.permissions %></td>
+              <td><span class="badge"><%= key.is_active ? 'Active' : 'Revoked' %></span></td>
+              <td><%= key.created_at %></td>
+              <td><%= key.last_used_at || '-' %></td>
+              <td>
+                <% if (key.is_active) { %>
+                  <form method="POST" action="/developer/api-keys/<%= key.id %>/revoke">
+                    <button class="btn secondary" type="submit">Revoke</button>
+                  </form>
+                <% } else { %>
+                  -
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="6">No API keys created yet.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

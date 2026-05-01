@@ -1,0 +1,29 @@
+<%- include('../partials/header') %>
+<section class="card">
+  <h1><%= title %></h1>
+  <form method="POST" action="<%= action %>" class="form-grid">
+    <label>Job Title
+      <input name="job_title" value="<%= job.job_title || '' %>" required>
+    </label>
+    <label>Company
+      <input name="company" value="<%= job.company || '' %>" required>
+    </label>
+    <label>Industry Sector
+      <input name="industry_sector" value="<%= job.industry_sector || '' %>" placeholder="Technology / Finance / Healthcare">
+    </label>
+    <label>Start Date
+      <input type="date" name="start_date" value="<%= job.start_date || '' %>">
+    </label>
+    <label>End Date
+      <input type="date" name="end_date" value="<%= job.end_date || '' %>">
+    </label>
+    <label class="checkbox-label">
+      <input type="checkbox" name="is_current" value="1" <%= job.is_current ? 'checked' : '' %>> Current role
+    </label>
+    <label class="full">Description
+      <textarea name="description" rows="4"><%= job.description || '' %></textarea>
+    </label>
+    <button class="btn primary full" type="submit">Save Employment</button>
+  </form>
+</section>
+<%- include('../partials/footer') %>
